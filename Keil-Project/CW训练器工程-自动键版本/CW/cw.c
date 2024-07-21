@@ -45,6 +45,7 @@ const char* MorseDictionary[] = {
     "-..-.",   // /
     "-...-",   // =
     ""
+
 };
 
 const char* MorseStringAsLength[] = {
