@@ -1,7 +1,7 @@
 #include "CW.h"
 #include <stdlib.h>
 
-// Ë³ĞòºÍLetters±£³ÖÒ»ÖÂ, ×îºóÔö¼ÓÒ»¸ö¿Õ×Ö·û´®×÷ÎªÄ¬ÈÏ¶µµ×Öµ
+// é¡ºåºå’ŒLettersä¿æŒä¸€è‡´, æœ€åå¢åŠ ä¸€ä¸ªç©ºå­—ç¬¦ä¸²ä½œä¸ºé»˜è®¤å…œåº•å€¼
 const char* MorseDictionary[] = {
     ".-",   // A
     "-...", // B
@@ -42,21 +42,8 @@ const char* MorseDictionary[] = {
     ".-.-.-",  // Full stop (.)
     "--..--",  // Comma (,)
     "..--..",  // Question mark (?)
-    "-.-.--",  // !
-    ".----.",  // '
-    ".-..-.",  // "
-    "-.--.",   // (
-    "-.--.-",  // )
-    ".-...",   // &
-    "---...",  // :
-    "-.-.-.",  // ;
     "-..-.",   // /
-    "..--.-",  // _
     "-...-",   // =
-    ".-.-.",   // +
-    "-....-",  // -
-    ".--.-.",   // @
-    // "...-..-" // $
     ""
 };
 
@@ -65,56 +52,56 @@ const char* MorseStringAsLength[] = {
 	"AIMN",
 	"DGKORSUW",
 	"BCFHJLPQVXYZ",
-	"0123456789(&/=+",
-	".,?!'\"):;_-@"
+	"0123456789/=",
+	".,?\"
     //"$"
 };
 
-const char Letters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?!'\"()&:;/_=+-@";
+const char Letters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,?/=";
 
-// Ò»¸ö×ÖÄ¸Ä¦Ë¹Âë
+// ä¸€ä¸ªå­—æ¯æ‘©æ–¯ç 
 u8 CW_Code_idx = 0;
 char CW_Code[MAX_MORSE_LEN]={0};
 char CW_Code_last[MAX_MORSE_LEN]={0};
 // 
 char CW_Letter;
-// ·¢ËÍ¶ÓÁĞ
+// å‘é€é˜Ÿåˆ—
 u8 CW_Send_Queue_idx = 0;
 u8 CW_Send_Queue[CW_SEND_QUEUE_LENGTH]={0};
 
 MorseNode MorseTreeRoot;
-MorseNode MorseTreeNode[64];//×Ó½Úµã
+MorseNode MorseTreeNode[64];//å­èŠ‚ç‚¹
 
 u8 node_index = 0;
 void ClearStr(char *str, size_t length) 
 {
     if (str != NULL && length > 0) {
-        memset(str, 0, length); // Ê¹ÓÃmemsetº¯Êı½«Õû¸ö×Ö·û´®ÄÚ´æ¿éÉèÖÃÎª0
+        memset(str, 0, length); // ä½¿ç”¨memsetå‡½æ•°å°†æ•´ä¸ªå­—ç¬¦ä¸²å†…å­˜å—è®¾ç½®ä¸º0
     }
 		CW_Code_idx = 0;
 }
 
-// Ê¹ÓÃstrncpy¸´ÖÆ×Ö·û´®£¬²¢È·±£Ä¿±ê×Ö·û´®ÒÔ'\0'½áÎ²
+// ä½¿ç”¨strncpyå¤åˆ¶å­—ç¬¦ä¸²ï¼Œå¹¶ç¡®ä¿ç›®æ ‡å­—ç¬¦ä¸²ä»¥'\0'ç»“å°¾
 void CopyStr(char *dest, const char *src, size_t destSize) 
 	{
-    // Ê¹ÓÃstrncpy¸´ÖÆ×Ö·û´®£¬²¢È·±£Ä¿±ê×Ö·û´®ÒÔ'\0'½áÎ²
-    strncpy(dest, src, destSize - 1); // ÁôÒ»¸ö×Ö·û¸øÖÕÖ¹·û'\0'
-    dest[destSize - 1] = '\0'; // ÊÖ¶¯Ìí¼ÓÖÕÖ¹·û£¬·ÀÖ¹Òç³ö
+    // ä½¿ç”¨strncpyå¤åˆ¶å­—ç¬¦ä¸²ï¼Œå¹¶ç¡®ä¿ç›®æ ‡å­—ç¬¦ä¸²ä»¥'\0'ç»“å°¾
+    strncpy(dest, src, destSize - 1); // ç•™ä¸€ä¸ªå­—ç¬¦ç»™ç»ˆæ­¢ç¬¦'\0'
+    dest[destSize - 1] = '\0'; // æ‰‹åŠ¨æ·»åŠ ç»ˆæ­¢ç¬¦ï¼Œé˜²æ­¢æº¢å‡º
 }
 
-// º¯Êı£ºÉú³ÉÒ»¸öÔÚ[min, max)·¶Î§ÄÚµÄËæ»úÊı
+// å‡½æ•°ï¼šç”Ÿæˆä¸€ä¸ªåœ¨[min, max)èŒƒå›´å†…çš„éšæœºæ•°
 int generate_random_number(int min, int max)
 {    
-    // Éú³ÉËæ»úÊı
+    // ç”Ÿæˆéšæœºæ•°
     int random_num = (rand() % (max - min)) + min;
     return random_num;
 }
 
 char num2letter(signed char num)
 {
-    // ÊäÈëÖµ±ØĞëÔÚºÏ·¨³¤¶ÈÄÚ
+    // è¾“å…¥å€¼å¿…é¡»åœ¨åˆæ³•é•¿åº¦å†…
     if (num < 0 || num >= strlen(Letters)) {
-        return '\0'; // Èç¹ûÊäÈë²»ºÏ·¨£¬·µ»Ø¿Õ×Ö·û
+        return '\0'; // å¦‚æœè¾“å…¥ä¸åˆæ³•ï¼Œè¿”å›ç©ºå­—ç¬¦
     }
     return Letters[num];
 }
@@ -127,16 +114,16 @@ u8 letter2num(char ch)
             return i;
         }
     }
-    // Èç¹ûÊÇ´óĞ´×ÖÄ¸£¬·µ»Ø0-25Ö®¼äµÄÒ»¸öÊı×Ö
+    // å¦‚æœæ˜¯å¤§å†™å­—æ¯ï¼Œè¿”å›0-25ä¹‹é—´çš„ä¸€ä¸ªæ•°å­—
     //if (ch >= 'A' && ch <= 'Z') {
     //    return ch - 'A';
     //}
-    // Èç¹ûÊÇÊı×Ö×Ö·û£¬·µ»Ø26-35Ö®¼äµÄÒ»¸öÊı×Ö
+    // å¦‚æœæ˜¯æ•°å­—å­—ç¬¦ï¼Œè¿”å›26-35ä¹‹é—´çš„ä¸€ä¸ªæ•°å­—
     //else if (ch >= '0' && ch <= '9') {
     //    return ch - '0' + 26;
     //}
 
-    // Èç¹ûÊäÈë²»ºÏ·¨£¬·µ»Ø×îºóÒ»¸ö(¶ÔÓ¦¿Õ´®)
+    // å¦‚æœè¾“å…¥ä¸åˆæ³•ï¼Œè¿”å›æœ€åä¸€ä¸ª(å¯¹åº”ç©ºä¸²)
     return i;
 }
 
@@ -147,7 +134,7 @@ void letter2MorseCode(char ch,char* morsecode)
 
 
 
-// ´´½¨ÄªË¹µçÂëÊ÷µÄ¸ù½Úµã
+// åˆ›å»ºè«æ–¯ç”µç æ ‘çš„æ ¹èŠ‚ç‚¹
 MorseNode* createMorseTree() 
 {
     MorseNode* root = (MorseNode*) MorseTreeNode+node_index;
@@ -162,9 +149,9 @@ MorseNode* createMorseTree()
 			return NULL;
 }
 
-// ½öÏŞinsertMorseCodeº¯ÊıÊ¹ÓÃ
+// ä»…é™insertMorseCodeå‡½æ•°ä½¿ç”¨
 u8 temp_cnt_length = 0;
-// ÏòÄªË¹µçÂëÊ÷ÖĞ²åÈëµçÂëºÍ¶ÔÓ¦µÄ×Ö·û
+// å‘è«æ–¯ç”µç æ ‘ä¸­æ’å…¥ç”µç å’Œå¯¹åº”çš„å­—ç¬¦
 void insertMorseCode(MorseNode* node, const char* code, char character) {
 		if (*code == '\0') 
 		{
@@ -189,7 +176,7 @@ void insertMorseCode(MorseNode* node, const char* code, char character) {
 		}
 }
 
-// ÔÚÄªË¹µçÂëÊ÷ÖĞËÑË÷µçÂë¶ÔÓ¦µÄ×Ö·û
+// åœ¨è«æ–¯ç”µç æ ‘ä¸­æœç´¢ç”µç å¯¹åº”çš„å­—ç¬¦
 MorseNode* searchMorseCode(MorseNode* node, const char* code) {
     if (node == NULL || *code == '\0') {
         return node;
@@ -210,7 +197,7 @@ char GetCharFromMorseCode(MorseNode* node, const char* code)
 	else
 		return ' ';
 }
-// ÊÍ·ÅÄªË¹µçÂëÊ÷Õ¼ÓÃµÄÄÚ´æ
+// é‡Šæ”¾è«æ–¯ç”µç æ ‘å ç”¨çš„å†…å­˜
 void freeMorseTree(MorseNode* node) {
     if (node != NULL) {
         freeMorseTree(node->left);
@@ -221,10 +208,10 @@ void freeMorseTree(MorseNode* node) {
 
 void MorseTree_Init(void)
 {
-	// ´´½¨ÄªË¹µçÂëÊ÷
+	// åˆ›å»ºè«æ–¯ç”µç æ ‘
     MorseNode* root = createMorseTree();;
 	
-	// ÕâÀï¿ÉÒÔÌí¼Ó¸ü¶àµÄÄªË¹µçÂë
+	// è¿™é‡Œå¯ä»¥æ·»åŠ æ›´å¤šçš„è«æ–¯ç”µç 
     for (int i = 0; i < strlen(Letters); i++) {
         insertMorseCode(root, MorseDictionary[i], Letters[i]);
     }
@@ -267,22 +254,10 @@ void MorseTree_Init(void)
 //    insertMorseCode(root, ".-.-.-", '.');
 //    insertMorseCode(root, "--..--", ',');
 //    insertMorseCode(root, "..--..", '?');
-//    insertMorseCode(root, "-.-.--", '!');
-//    insertMorseCode(root, ".----.", '\'');
-//    insertMorseCode(root, ".-..-.", '"');
-//    insertMorseCode(root, "-.--.", '(');
-//    insertMorseCode(root, "-.--.-", ')');
-//    insertMorseCode(root, ".-...", '&');
-//    insertMorseCode(root, "---...", ':');
-//    insertMorseCode(root, "-.-.-.", ';');
 //    insertMorseCode(root, "-..-.", '/');
-//    insertMorseCode(root, "..--.-", '_');
 //    insertMorseCode(root, "-...-", '=');
-//    insertMorseCode(root, ".-.-.", '+');
-//    insertMorseCode(root, "-....-", '-');
-//    insertMorseCode(root, ".--.-.", '@');
-    // insertMorseCode(root, "...-..-", '$');
 
-	// ½«´î½¨Íê³ÉµÄÊ÷¸ù½Úµã´«³ö
+
+	// å°†æ­å»ºå®Œæˆçš„æ ‘æ ¹èŠ‚ç‚¹ä¼ å‡º
     MorseTreeRoot = *root;
 }
